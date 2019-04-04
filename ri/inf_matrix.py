@@ -1,4 +1,4 @@
-import numpy as np
+from typing import Sequence
 
 
 class Influence:
@@ -11,10 +11,6 @@ class Influence:
 
     def __str__(self) -> str:
         return "value: {}, x: {}, y: {}".format(self.value, self.x, self.y)
-
-    @staticmethod
-    def np_dtype() -> np.dtype:
-        return np.dtype([("x", np.int32), ("y", np.int32)])
 
     def to_tuple(self) -> tuple:
         return tuple((self.x, self.y))
@@ -31,17 +27,26 @@ class Actor:
         self.x = x
         self.y = y
 
-    def create_inf_matrix(self, size) -> []:
-        #       matrix = np.empty(In)
-        #       for x in range(size):
-        #           for y in range(size):
+    def intersection(self, lst1: Sequence[Influence], lst2: Sequence[Influence]) -> []:
+        temp = set([value.to_tuple() for value in lst2])
+        lst3 = [value for value in lst1 if value.to_tuple() in temp]
+        return lst3
 
-        return np.array([Influence(3, 1, 2).to_tuple(), Influence(2, 2, 2).to_tuple(), Influence(2, 2, 3).to_tuple()],
-                        dtype=Influence.np_dtype())
+    def create_inf_matrix(self, radius) -> []:
+        matrix = []
+        for i in range(-radius, radius + 1):
+            for j in range(-radius, radius + 1):
+                matrix.append(Influence(1, j, i))
+
+        return matrix
 
 
 act1 = Actor()
 act2 = Actor()
 
-res = np.intersect1d(act1.create_inf_matrix(5), act2.create_inf_matrix(3))
-print(res)
+m1 = act1.create_inf_matrix(1)
+m2 = act1.create_inf_matrix(2)
+
+inters = act1.intersection(m1, m2)
+
+[print(i) for i in inters]
