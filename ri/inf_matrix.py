@@ -28,17 +28,18 @@ class Actor:
         self.y = y
 
     def intersection(self, lst1: Sequence[Influence], lst2: Sequence[Influence]) -> []:
-        temp = set([value.to_tuple() for value in lst2])
-        lst3 = [value for value in lst1 if value.to_tuple() in temp]
-        return lst3
+        _temp = set([value.to_tuple() for value in lst2])
+        _lst3 = [value for value in lst1 if value.to_tuple() in _temp]
+        return _lst3
 
     def create_inf_matrix(self, radius) -> []:
-        matrix = []
+        _matrix = []
         for i in range(-radius, radius + 1):
             for j in range(-radius, radius + 1):
-                matrix.append(Influence(1, j, i))
+                _r = max(abs(i), abs(j))
+                _matrix.append(Influence(radius - _r + 1, j, i))
 
-        return matrix
+        return _matrix
 
 
 act1 = Actor()
@@ -49,4 +50,7 @@ m2 = act1.create_inf_matrix(2)
 
 inters = act1.intersection(m1, m2)
 
+[print(i) for i in m2]
+print("intersection")
 [print(i) for i in inters]
+
