@@ -47,21 +47,21 @@ class Actor:
                 self.matrix.append(Influence(radius - _r + 1, j, i))
 
 
-act1 = Actor(1)
-act1.move_to(3, 3)
-act2 = Actor(2)
-act2.move_to(7, 7)
+act1 = Actor(10)
+act1.move_to(13, 13)
+act2 = Actor(15)
+act2.move_to(26, 26)
 
 m1 = act1.matrix
 m2 = act2.matrix
 
-# inters = act1.intersection(m1, m2)
+inters = act1.intersection(m1, m2)
 
 [print(i) for i in m1]
 print("m2")
 [print(i) for i in m2]
 print("intersection")
-# [print(i) for i in inters]
+[print(i) for i in inters]
 
 m1t = [i.to_tuple() for i in m1]
 m2t = [i.to_tuple() for i in m2]
