@@ -14,7 +14,11 @@ def taxiagent(prints=False):
     env = gym.make("Taxi-v2")
 
     # Initializing the Q-table of size state-space x action-space with zeros
-    Q = np.zeros((env.observation_space.n, env.action_space.n))
+    # 500
+    observation_space_n = env.observation_space.n
+    # 6
+    action_space_n = env.action_space.n
+    Q = np.zeros((observation_space_n, action_space_n))
 
     # Set the hyper-parameters
     epsilon = 1.0
