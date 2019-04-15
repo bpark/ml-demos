@@ -1,6 +1,9 @@
 from abc import ABCMeta, abstractmethod
 from random import randint
 from typing import List, Dict
+import numpy as np
+
+import math
 
 
 class Actor:
@@ -82,12 +85,20 @@ class GameEnv:
         reward = actor.apply(action)
         print("reward: " + str(reward))
 
-        opponents = [v for k, v in self.actors.items() if k not in [actor_id]]
+        opponents = self._opponents(actor_id)
+
+        for opponent in opponents:
+            print("total %: " + str(round(math.log(opponent.state["total_hp"] / actor.state["total_hp"]), 1)))
+            print("current %: " + str(round(math.log(opponent.state["current_hp"] / actor.state["current_hp"]), 1)))
+            print("current/total %: " + str(opponent.perc_hp()))
 
         return 123, 10, False
 
     def sample(self, actor_id) -> str:
         return randint(0, len(self.actors[actor_id].ab_dict.keys()) - 1)
+
+    def _opponents(self, actor_id):
+        return [v for k, v in self.actors.items() if k not in [actor_id]]
 
 
 a1 = Actor(1, 4, 500, 50, ab=[Strike(), Heal(20)])
@@ -96,4 +107,10 @@ a2 = Actor(2, 7, 1500, 5, ab=[Strike(), Heal(40)])
 env = GameEnv()
 env.add_actor(a1)
 env.add_actor(a2)
-env.step(1, "strike")
+env.step(1, "heal")
+
+# ls = np.linspace(0.1, 1, 11)
+# [print(str(lsi) + " - " + str(round(math.log(lsi + 1), 1))) for lsi in ls]
+
+# for i in range(1, 10):
+#     print(str(i) + " - " + str(round(math.log(i + 1), 1)))
