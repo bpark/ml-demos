@@ -1,9 +1,29 @@
 from abc import ABCMeta, abstractmethod
 from random import randint
 from typing import List, Dict
-import numpy as np
 
 import math
+
+
+def auto_str(cls):
+    def __str__(self):
+        return '%s(%s)' % (
+            type(self).__name__,
+            ', '.join('%s=%s' % item for item in vars(self).items())
+        )
+
+    cls.__str__ = __str__
+    return cls
+
+
+@auto_str
+class State:
+
+    def __init__(self, rlvl: float = 0, rtothp: float = 0, rcurrhp: float = 0) -> None:
+        super().__init__()
+        self.rlvl = rlvl
+        self.rtothp = rtothp
+        self.rcurrhp = rcurrhp
 
 
 class Actor:
@@ -82,15 +102,17 @@ class GameEnv:
     # next_state, reward, done
     def step(self, actor_id, action: str) -> tuple:
         actor = self.actors[actor_id]
-        reward = actor.apply(action)
-        print("reward: " + str(reward))
+        # reward = actor.apply(action)
+        # print("reward: " + str(reward))
 
         opponents = self._opponents(actor_id)
 
+        state = State()
         for opponent in opponents:
-            print("total %: " + str(round(math.log(opponent.state["total_hp"] / actor.state["total_hp"]), 1)))
-            print("current %: " + str(round(math.log(opponent.state["current_hp"] / actor.state["current_hp"]), 1)))
-            print("current/total %: " + str(opponent.perc_hp()))
+            state.rlvl += round(math.log(opponent.lvl / actor.lvl), 1)
+            state.rtothp += round(math.log(opponent.state["total_hp"] / actor.state["total_hp"]), 1)
+            state.rcurrhp += round(math.log(opponent.state["current_hp"] / actor.state["current_hp"]), 1)
+            print(state)
 
         return 123, 10, False
 
@@ -101,16 +123,11 @@ class GameEnv:
         return [v for k, v in self.actors.items() if k not in [actor_id]]
 
 
-a1 = Actor(1, 4, 500, 50, ab=[Strike(), Heal(20)])
-a2 = Actor(2, 7, 1500, 5, ab=[Strike(), Heal(40)])
+a1 = Actor(1, 2, 200, 50, ab=[Strike(), Heal(40)])
+a2 = Actor(2, 2, 100, 50, ab=[Strike(), Heal(40)])
 
 env = GameEnv()
 env.add_actor(a1)
 env.add_actor(a2)
+# env.step(1, "strike")
 env.step(1, "heal")
-
-# ls = np.linspace(0.1, 1, 11)
-# [print(str(lsi) + " - " + str(round(math.log(lsi + 1), 1))) for lsi in ls]
-
-# for i in range(1, 10):
-#     print(str(i) + " - " + str(round(math.log(i + 1), 1)))
