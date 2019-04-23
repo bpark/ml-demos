@@ -25,6 +25,13 @@ class State:
         self.rtothp = rtothp
         self.rcurrhp = rcurrhp
 
+    def __eq__(self, o: object) -> bool:
+        if isinstance(o, State):
+            return self.rlvl == o.rlvl and self.rtothp == o.rtothp and self.rcurrhp == o.rcurrhp
+
+    def __hash__(self) -> int:
+        return int(self.rlvl * 100000 + self.rtothp * 1000 + self.rcurrhp * 10)
+
 
 class Actor:
 
@@ -102,19 +109,24 @@ class GameEnv:
     # next_state, reward, done
     def step(self, actor_id, action: str) -> tuple:
         actor = self.actors[actor_id]
-        # reward = actor.apply(action)
-        # print("reward: " + str(reward))
+        reward = actor.apply(action)
 
         opponents = self._opponents(actor_id)
 
         state = State()
         for opponent in opponents:
-            state.rlvl += round(math.log(opponent.lvl / actor.lvl), 1)
-            state.rtothp += round(math.log(opponent.state["total_hp"] / actor.state["total_hp"]), 1)
-            state.rcurrhp += round(math.log(opponent.state["current_hp"] / actor.state["current_hp"]), 1)
+            state.rlvl = round(math.log(actor.lvl / opponent.lvl), 1)
+            state.rtothp = round(math.log(actor.state["total_hp"] / opponent.state["total_hp"]), 1)
+            state.rcurrhp = round(math.log(actor.state["current_hp"] / opponent.state["current_hp"]), 1)
             print(state)
 
-        return 123, 10, False
+        return hash(state), reward, False
+
+    def observation_space_n(self) -> int:
+        return pow(41, 3)
+
+    def action_space_n(self) -> int:
+        return 2
 
     def sample(self, actor_id) -> str:
         return randint(0, len(self.actors[actor_id].ab_dict.keys()) - 1)
@@ -123,11 +135,13 @@ class GameEnv:
         return [v for k, v in self.actors.items() if k not in [actor_id]]
 
 
-a1 = Actor(1, 2, 200, 50, ab=[Strike(), Heal(40)])
+a1 = Actor(1, 6, 100, 50, ab=[Strike(), Heal(40)])
 a2 = Actor(2, 2, 100, 50, ab=[Strike(), Heal(40)])
 
 env = GameEnv()
 env.add_actor(a1)
 env.add_actor(a2)
 # env.step(1, "strike")
-env.step(1, "heal")
+state, reward, end = env.step(1, "heal")
+
+print("state=" + str(state) + ", reward=" + str(reward) + ", end=" + str(end))
