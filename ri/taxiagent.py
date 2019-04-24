@@ -16,6 +16,7 @@ def taxiagent(prints=False):
     # Initializing the Q-table of size state-space x action-space with zeros
     # 500
     observation_space_n = env.observation_space.n
+    print("observation_space_n: " + str(observation_space_n))
     # 6
     action_space_n = env.action_space.n
     Q = np.zeros((observation_space_n, action_space_n))
